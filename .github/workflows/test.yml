@@ -1,0 +1,17 @@
+name: Run Tests on Pull Request
+
+on:
+    pull_request:  # Se ejecuta en cada PR
+    workflow_dispatch:  # Permite ejecución manual
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                node-version: '20'
+                cache: 'npm'
+            - run: npm ci                    # Instala dependencias
+            - run: npm run test              # Ejecuta los tests con vitest
