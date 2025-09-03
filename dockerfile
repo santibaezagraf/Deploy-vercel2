@@ -15,8 +15,6 @@ COPY . .
 # Construir la app para producción
 RUN npm run build
 
----
-
 # Etapa 2: Imagen final para producción
 FROM node:20-alpine AS runner
 
