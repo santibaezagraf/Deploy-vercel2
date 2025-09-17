@@ -1,27 +1,29 @@
 'use server'
 
-import { getReviewsByBookId, addReview, voteReviewById } from "@/lib/memoryDB";
+
 import type { Review, Book } from "@/lib/types";
 
-// Helper que mapea respuesta de la API a tipo Book
-function mapApiResponseToBook(item: {
+interface itemData {
     id: string;
     volumeInfo: {
-        title?: string;
-        authors?: string[];
-        publishedDate?: string;
-        publisher?: string;
-        description?: string;
-        pageCount?: number;
-        categories?: string[];
-        averageRating?: number;
-        ratingsCount?: number;
+        title: string;
+        authors: string[];
+        publishedDate: string;
+        publisher: string;
+        description: string;
+        pageCount: number;
+        categories: string[];
+        averageRating: number;
+        ratingsCount: number;
         imageLinks?: {
-            thumbnail?: string;
+            thumbnail: string;
         };
-        infoLink?: string;
+        infoLink: string;
     };
-}): Book {
+}
+
+// Helper que mapea respuesta de la API a tipo Book
+function mapApiResponseToBook(item: itemData): Book {
     return {
         id: item.id,
         title: item.volumeInfo.title || 'Unknown Title',
@@ -73,7 +75,6 @@ export async function searchBooks(formData: FormData, startIndex: number = 0): P
                 searchQuery = encodeURIComponent(query);
         }
 
-        console.log(`Searching books with query: ${searchQuery}`);
         const response = await fetch(
             `https://www.googleapis.com/books/v1/volumes?q=${searchQuery}&startIndex=${startIndex}&maxResults=10`
         );
@@ -88,9 +89,6 @@ export async function searchBooks(formData: FormData, startIndex: number = 0): P
         const books = data.items?.map(await mapApiResponseToBook) || [];
         const totalItems = data.totalItems || 0;
 
-        console.log(`Found ${totalItems} books for query: ${searchQuery}`);
-        console.log(books);
-
         return {
             books: {
                 items: books,
@@ -103,17 +101,4 @@ export async function searchBooks(formData: FormData, startIndex: number = 0): P
             books: null
         }
     }
-}
-
-export async function getBookReviews(bookId: string) {
-    const reviews = getReviewsByBookId(bookId);
-    return reviews;
-}
-
-export async function addBookReview(bookId: string, review: Review) {
-    addReview({ ...review, bookId });
-}
-
-export async function voteReview(reviewId: string, upvote: boolean) {
-    voteReviewById(reviewId, upvote);
 }
