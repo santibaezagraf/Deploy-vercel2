@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface User {
     id: string;
@@ -21,6 +22,7 @@ export default function UserProfileInfo({ user }: UserProfileInfoProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
+    const { updateUser } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -29,6 +31,8 @@ export default function UserProfileInfo({ user }: UserProfileInfoProps) {
         setSuccess(null);
 
         try {
+            console.log('Enviando datos de perfil:', editForm);
+
             const response = await fetch('/api/protected/users/profile', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -45,6 +49,7 @@ export default function UserProfileInfo({ user }: UserProfileInfoProps) {
             setIsEditing(false);
             
             // Aquí podrías actualizar el contexto del usuario si es necesario
+            updateUser({ username: editForm.username, email: editForm.email });
             
         } catch (error) {
             console.error('Error updating profile:', error);

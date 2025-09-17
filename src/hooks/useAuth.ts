@@ -1,5 +1,5 @@
 'use client'
-import { access } from 'fs'
+import { access, stat } from 'fs'
 import { useState, useEffect } from 'react'
 
 interface User {
@@ -43,7 +43,29 @@ export function useAuth() {
     // Verificar autenticación al cargar
     useEffect(() => {
         checkAuth()
-    }, [])
+    }, [state.user])
+    
+     // ✅ Método para actualizar el usuario en el contexto
+    const updateUser = (userData: Partial<User>) => {
+        console.log('Updating user with data:', userData);
+        setState(prev => ({ ...prev, user: { ...prev.user, ...userData } as User }));
+    };
+
+    // ✅ Método para refrescar el usuario desde el servidor
+    const refreshUser = async () => {
+        try {
+            const response = await fetch('/api/auth/me', {
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setState(prev => ({ ...prev, user: data.user }));
+            }
+        } catch (error) {
+            console.error('Error refreshing user:', error);
+        }
+    };
 
     const checkAuth = async () => {
         try {
@@ -148,6 +170,8 @@ export function useAuth() {
         }
     }
 
+
+
     return {
         user: state.user,
         loading: state.loading,
@@ -157,5 +181,7 @@ export function useAuth() {
         register,
         logout,
         checkAuth,
+        refreshUser,
+        updateUser
     }
 }

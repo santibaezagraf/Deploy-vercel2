@@ -1,0 +1,38 @@
+import { getUserFromRequest } from "@/lib/auth";
+import connectDB from "@/lib/mongodb";
+import User from "@/models/User";
+import { NextRequest, NextResponse } from "next/server";
+
+
+export async function PUT (request: NextRequest) {
+    try {
+        await connectDB();
+
+        const userInfo = getUserFromRequest(request);
+        if (!userInfo) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const { username, email } = await request.json();
+
+        if (!username || !email) {
+            return NextResponse.json({ error: 'Username and email are required' }, { status: 400 });
+        }
+
+        const user = await User.findById(userInfo.userId);
+        
+        if (!user) {
+            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+        
+        
+        user.username = username;
+        user.email = email;
+        await user.save();
+
+        return NextResponse.json({ message: 'Profile updated successfully' }, { status: 200 });
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}
