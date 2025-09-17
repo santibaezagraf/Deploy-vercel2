@@ -1,25 +1,24 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 
 export default function HomePage() {
-    const router = useRouter()
     const { isAuthenticated, loading } = useAuth()
 
     useEffect(() => {
         if (!loading) {
             if (isAuthenticated) {
                 // Si está logueado, redirigir a la aplicación protegida
-                router.push('/dashboard')
+                redirect('/dashboard')
             } else {
                 // Si no está logueado, redirigir a login
-                router.push('/login')
+                redirect('/login')
             }
 
         }
-    }, [isAuthenticated, loading, router])
+    }, [isAuthenticated, loading])
 
     // Mientras se verifica la autenticación, mostrar loading
     if (loading) {
