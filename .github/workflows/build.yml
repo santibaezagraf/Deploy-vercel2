@@ -1,0 +1,17 @@
+name: Build on Pull Request
+
+on:
+  pull_request:  # Se ejecuta automáticamente cuando se crea o actualiza un PR
+  workflow_dispatch:  # Permite ejecutar manualmente desde GitHub
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Usa una máquina virtual Ubuntu
+    steps:
+      - uses: actions/checkout@v4           # Descarga el código del PR
+      - uses: actions/setup-node@v4         # Instala Node.js
+        with:
+          node-version: '20'                # Versión de Node
+          cache: 'npm'                      # Cachea node_modules para ser más rápido
+      - run: npm ci                    # Instala dependencias
+      - run: npm run build                  # Ejecuta el build de Next.js
